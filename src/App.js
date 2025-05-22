@@ -6,7 +6,7 @@ function App() {
     const [form, setForm] = useState({ name: '', message: '' });
 
     useEffect(() => {
-        axios.get('http://localhost:5000/posts').then(res => setPosts(res.data));
+        axios.get('https://devconnect-api.onrender.com/posts').then(res => setPosts(res.data));
     }, []);
 
     const submitPost = async () => {
