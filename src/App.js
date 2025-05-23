@@ -5,23 +5,48 @@ function App() {
     const [posts, setPosts] = useState([]);
     const [form, setForm] = useState({ name: '', message: '' });
 
+    // Load posts when component mounts
     useEffect(() => {
-        axios.get('https://devconnect-api.onrender.com/posts').then(res => setPosts(res.data));
+        axios
+            .get(`${process.env.REACT_APP_API_BASE}/posts`)
+            .then(res => setPosts(res.data))
+            .catch(err => console.error("Error fetching posts:", err));
     }, []);
 
     const submitPost = async () => {
-        await axios.post('http://localhost:5000/posts', form);
-        setForm({ name: '', message: '' });
+        try {
+            await axios.post(`${process.env.REACT_APP_API_BASE}/posts`, form);
+            setForm({ name: '', message: '' });
+
+            // Refresh post list after submitting
+            const res = await axios.get(`${process.env.REACT_APP_API_BASE}/posts`);
+            setPosts(res.data);
+        } catch (err) {
+            console.error("Error submitting post:", err);
+        }
     };
 
     return (
-        <div>
+        <div style={{ padding: 20, fontFamily: 'Arial' }}>
             <h1>DevConnect 🌐</h1>
-            <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Name" />
-            <input value={form.message} onChange={e => setForm({...form, message: e.target.value})} placeholder="Message" />
-            <button onClick={submitPost}>Post</button>
-            <ul>
-                {posts.map((p, i) => <li key={i}><b>{p.name}</b>: {p.message}</li>)}
+            <input
+                value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+                placeholder="Name"
+                style={{ display: 'block', margin: '8px 0', padding: 8 }}
+            />
+            <input
+                value={form.message}
+                onChange={e => setForm({ ...form, message: e.target.value })}
+                placeholder="Message"
+                style={{ display: 'block', margin: '8px 0', padding: 8 }}
+            />
+            <button onClick={submitPost} style={{ padding: '8px 16px' }}>Post</button>
+
+            <ul style={{ marginTop: 20 }}>
+                {posts.map((p, i) => (
+                    <li key={i}><b>{p.name}</b>: {p.message}</li>
+                ))}
             </ul>
         </div>
     );
